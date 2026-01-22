@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard</title>
+</head>
+<body style="font-family:Arial;padding:20px;">
+  <h1>Dashboard (placeholder)</h1>
+  <p id="who"></p>
+  <button id="logout">Cerrar sesión</button>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem("session") || "null");
+    if (!session) window.location.href = "./login.html";
+
+    document.getElementById("who").textContent =
+      `Hola, ${session.user.name} (${session.user.email}) - rol: ${session.user.role}`;
+
+    document.getElementById("logout").onclick = () => {
+      localStorage.removeItem("session");
+      window.location.href = "./login.html";
+    };
+  </script>
+</body>
+</html>

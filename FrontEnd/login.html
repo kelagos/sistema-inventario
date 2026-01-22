@@ -1,3 +1,62 @@
 <!doctype html>
 <html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | Sistema Inventario</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <main class="auth">
+    <section class="card">
+      <header class="card__header">
+        <h1>Iniciar sesión</h1>
+        <p>Accede al sistema de inventario</p>
+      </header>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="correo@ejemplo.com" autocomplete="email" />
+          <small class="error" id="emailError"></small>
+        </div>
+
+        <div class="field">
+          <label for="password">Contraseña</label>
+
+          <div class="password">
+            <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+            <button type="button" class="password__toggle" id="togglePass" aria-label="Mostrar contraseña">
+              👁
+            </button>
+          </div>
+
+          <small class="error" id="passError"></small>
+        </div>
+
+        <div class="row">
+          <label class="checkbox">
+            <input type="checkbox" id="remember" />
+            <span>Recordarme</span>
+          </label>
+
+          <a class="link" href="#" onclick="alert('Luego puedes hacer la pantalla de recuperar clave')">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        <button class="btn" id="btnLogin" type="submit">Entrar</button>
+
+        <p class="form-msg" id="formMsg" role="alert" aria-live="polite"></p>
+
+        <footer class="card__footer">
+          <span>¿No tienes cuenta?</span>
+          <a class="link" href="#" onclick="alert('Luego puedes hacer el registro')">Crear cuenta</a>
+        </footer>
+      </form>
+    </section>
+  </main>
+
+  <script src="./js/login.js"></script>
+</body>
 </html>

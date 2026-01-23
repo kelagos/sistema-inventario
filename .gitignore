@@ -1,0 +1,13 @@
+# Python
+BackEnd/.env
+BackEnd/.venv/
+BackEnd/__pycache__/
+
+# Node
+node_modules/
+
+# Otros
+.DS_Store
+*.log
+
+.env

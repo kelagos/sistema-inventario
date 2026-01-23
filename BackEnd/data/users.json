@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "id": 1769183689364,
+      "name": "Kevin",
+      "email": "kevin@test.com",
+      "password_hash": "$pbkdf2-sha256$29000$UOpdy3kvZax1zllLKeX8Xw$Zr4zYhCmK/h4qyxoeuZIWFOzIlsvxLLwfXdmuCvv00Q",
+      "role": "admin"
+    }
+  ]
+}

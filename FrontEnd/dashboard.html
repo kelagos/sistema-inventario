@@ -3,24 +3,94 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard</title>
+  <title>Dashboard | Inventario</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 0; padding: 24px; background:#0b1220; color:#e8eefc; }
+    .card { max-width: 720px; margin: 0 auto; background:#111a2e; border:1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 18px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .muted { color:#a9b6d6; }
+    .btn { padding:10px 12px; border-radius: 10px; border:1px solid rgba(95,120,255,.6); background: rgba(95,120,255,.15); color:#e8eefc; cursor:pointer; }
+    pre { background: rgba(0,0,0,.25); padding: 12px; border-radius: 12px; overflow:auto; }
+    .ok { color:#50fa7b; }
+    .bad { color:#ff5c7a; }
+  </style>
 </head>
-<body style="font-family:Arial;padding:20px;">
-  <h1>Dashboard (placeholder)</h1>
-  <p id="who"></p>
-  <button id="logout">Cerrar sesión</button>
+<body>
+  <div class="card">
+    <div class="row">
+      <div>
+        <h1 style="margin:0 0 6px;">Dashboard</h1>
+        <div class="muted" id="subtitle">Cargando sesión…</div>
+      </div>
+      <button class="btn" id="logoutBtn">Cerrar sesión</button>
+    </div>
+
+    <hr style="border:0;border-top:1px solid rgba(255,255,255,.12); margin:16px 0;">
+
+    <h3 style="margin:0 0 8px;">Usuario</h3>
+    <pre id="userBox">—</pre>
+
+    <h3 style="margin:16px 0 8px;">Estado del token (GET /auth/me)</h3>
+    <div id="tokenStatus" class="muted">Probando token…</div>
+    <pre id="meBox">—</pre>
+  </div>
 
   <script>
-    const session = JSON.parse(localStorage.getItem("session") || "null");
-    if (!session) window.location.href = "./login.html";
+    // 1) Leer sesión
+    const sessionRaw = localStorage.getItem("session");
+    const session = sessionRaw ? JSON.parse(sessionRaw) : null;
 
-    document.getElementById("who").textContent =
-      `Hola, ${session.user.name} (${session.user.email}) - rol: ${session.user.role}`;
+    // 2) Si no hay sesión -> volver al login
+    if (!session || !session.token) {
+      window.location.href = "./login.html";
+    }
 
-    document.getElementById("logout").onclick = () => {
+    // 3) Mostrar usuario
+    const subtitle = document.getElementById("subtitle");
+    const userBox = document.getElementById("userBox");
+    subtitle.textContent = `Hola, ${session.user?.name || "usuario"} (${session.user?.role || "sin rol"})`;
+    userBox.textContent = JSON.stringify(session.user, null, 2);
+
+    // 4) Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("session");
       window.location.href = "./login.html";
-    };
+    });
+
+    // 5) Probar token en API
+    async function testToken() {
+      const tokenStatus = document.getElementById("tokenStatus");
+      const meBox = document.getElementById("meBox");
+
+      try {
+        const res = await fetch("http://localhost:3000/auth/me", {
+          headers: {
+            "Authorization": `Bearer ${session.token}`
+          }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          tokenStatus.textContent = "Token inválido o expirado. Redirigiendo al login…";
+          tokenStatus.className = "bad";
+          localStorage.removeItem("session");
+          setTimeout(() => window.location.href = "./login.html", 800);
+          return;
+        }
+
+        tokenStatus.textContent = "Token OK ✅";
+        tokenStatus.className = "ok";
+        meBox.textContent = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        tokenStatus.textContent = "No se pudo conectar con la API (¿está corriendo FastAPI?).";
+        tokenStatus.className = "bad";
+        meBox.textContent = String(err);
+      }
+    }
+
+    testToken();
   </script>
 </body>
 </html>

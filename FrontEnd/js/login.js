@@ -57,28 +57,33 @@ form.addEventListener("submit", async (e) => {
 
   if (!ok) return;
 
-  // ✅ LOGIN BÁSICO (SIMULADO)
-  // Luego lo conectamos a tu API /auth/login
-  setLoading(true);
+   setLoading(true);
 
-  try{
-    await new Promise(r => setTimeout(r, 600)); // simula espera
+  try {
+    const res = await fetch("http://localhost:3000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: eVal,
+        password: pVal
+      })
+    });
 
-    // credenciales demo (cámbialas si quieres)
-    const demoEmail = "kevin@test.com";
-    const demoPass  = "123456";
+    const data = await res.json();
 
-    if (eVal !== demoEmail || pVal !== demoPass){
-      throw new Error("Email o contraseña incorrectos.");
+    if (!res.ok) {
+      throw new Error(data.detail || "Email o contraseña incorrectos.");
     }
 
     const session = {
-      token: "demo_token_123",
-      user: { name: "Kevin", email: eVal, role: "admin" },
+      token: data.token,
+      user: data.user,
       remember: remember.checked
     };
 
-    // guardamos sesión (demo)
+  
     localStorage.setItem("session", JSON.stringify(session));
 
     formMsg.textContent = "¡Login correcto! Redirigiendo…";
@@ -89,10 +94,10 @@ form.addEventListener("submit", async (e) => {
       window.location.href = "./dashboard.html";
     }, 500);
 
-  } catch (err){
+  } catch (err) {
     formMsg.textContent = err.message || "No se pudo iniciar sesión.";
     formMsg.style.display = "block";
-  } finally{
+  } finally {
     setLoading(false);
   }
 });

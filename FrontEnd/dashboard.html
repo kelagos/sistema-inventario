@@ -4,93 +4,460 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard | Inventario</title>
+
   <style>
-    body { font-family: system-ui, Arial; margin: 0; padding: 24px; background:#0b1220; color:#e8eefc; }
-    .card { max-width: 720px; margin: 0 auto; background:#111a2e; border:1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 18px; }
+    :root{
+      --bg:#0b1220;
+      --card:#111a2e;
+      --border:rgba(255,255,255,.12);
+      --muted:#a9b6d6;
+      --text:#e8eefc;
+      --accent:rgba(95,120,255,.6);
+      --accentBg:rgba(95,120,255,.15);
+    }
+
+    body { font-family: system-ui, Arial; margin: 0; padding: 24px; background:var(--bg); color:var(--text); }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
     .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-    .muted { color:#a9b6d6; }
-    .btn { padding:10px 12px; border-radius: 10px; border:1px solid rgba(95,120,255,.6); background: rgba(95,120,255,.15); color:#e8eefc; cursor:pointer; }
-    pre { background: rgba(0,0,0,.25); padding: 12px; border-radius: 12px; overflow:auto; }
-    .ok { color:#50fa7b; }
-    .bad { color:#ff5c7a; }
+    .muted { color:var(--muted); }
+
+    .btn { padding:10px 12px; border-radius: 10px; border:1px solid var(--accent); background: var(--accentBg); color:var(--text); cursor:pointer; }
+    .btn.danger { border-color: rgba(255,92,122,.6); background: rgba(255,92,122,.12); }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+
+    input, select { padding:10px 12px; border-radius: 10px; border:1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.2); color:var(--text); }
+    input::placeholder { color: rgba(169,182,214,.75); }
+
+    .msg { display:none; margin-top:10px; padding:10px 12px; border-radius: 10px; border:1px solid rgba(255,255,255,.14); }
+    .msg.ok { display:block; border-color: rgba(80,250,123,.4); background: rgba(80,250,123,.10); }
+    .msg.bad { display:block; border-color: rgba(255,92,122,.4); background: rgba(255,92,122,.10); }
+
+    .grid { display:grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap:10px; }
+    @media (max-width: 820px){ .grid { grid-template-columns: 1fr; } }
+
+    code { color:var(--muted); }
+
+    /* ===== KPI cards ===== */
+    .kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+    @media (max-width: 820px){ .kpis{ grid-template-columns: 1fr; } }
+    .kpi{ background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.10); border-radius: 14px; padding: 14px; }
+    .kpi .label{ color: var(--muted); font-size: 13px; }
+    .kpi .value{ font-size: 28px; font-weight: 800; margin-top: 6px; }
+    .kpi .hint{ color: rgba(169,182,214,.85); font-size: 12px; margin-top: 2px; }
+
+    /* ===== Filtros ===== */
+    .filters{ display:grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; margin-top: 12px; }
+    @media (max-width: 820px){ .filters{ grid-template-columns: 1fr; } }
+
+    /* ===== Tabla moderna ===== */
+    .tableWrap{ overflow:auto; margin-top: 10px; border-radius: 12px; border:1px solid rgba(255,255,255,.10); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    thead th{
+      position: sticky; top: 0;
+      background: rgba(17,26,46,.95);
+      backdrop-filter: blur(6px);
+      z-index: 2;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-size: 12px;
+    }
+    th, td { text-align:left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    tbody tr:nth-child(odd){ background: rgba(255,255,255,.02); }
+    tbody tr:hover{ background: rgba(95,120,255,.08); }
+
+    td.qty{ text-align:right; font-variant-numeric: tabular-nums; }
+    td.actions{ width: 120px; }
+
+    /* ===== Badges stock ===== */
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px; border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-size: 12px; font-weight: 650;
+    }
+    .dot{ width:8px; height:8px; border-radius: 999px; background: rgba(255,255,255,.45); }
+
+    .badge.ok    { border-color: rgba(80,250,123,.35); background: rgba(80,250,123,.10); }
+    .badge.warn  { border-color: rgba(255,205,80,.35); background: rgba(255,205,80,.10); }
+    .badge.bad   { border-color: rgba(255,92,122,.35); background: rgba(255,92,122,.10); }
+    .badge.ok .dot   { background: rgba(80,250,123,.9); }
+    .badge.warn .dot { background: rgba(255,205,80,.9); }
+    .badge.bad .dot  { background: rgba(255,92,122,.9); }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <div class="row">
-      <div>
-        <h1 style="margin:0 0 6px;">Dashboard</h1>
-        <div class="muted" id="subtitle">Cargando sesión…</div>
+  <div class="wrap">
+
+    <!-- TOP CARD -->
+    <div class="card">
+      <div class="row">
+        <div>
+          <h1 style="margin:0 0 6px;">Dashboard</h1>
+          <div class="muted" id="subtitle">Cargando sesión…</div>
+          <div class="muted" style="margin-top:6px;">API: <code id="apiUrl">http://localhost:3000</code></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="refreshBtn">Refrescar</button>
+          <button class="btn danger" id="logoutBtn">Cerrar sesión</button>
+        </div>
       </div>
-      <button class="btn" id="logoutBtn">Cerrar sesión</button>
+
+      <div id="topMsg" class="msg"></div>
+
+      <!-- KPIs -->
+      <div class="kpis">
+        <div class="kpi">
+          <div class="label">Total productos</div>
+          <div class="value" id="kpiTotal">—</div>
+          <div class="hint">ítems registrados</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Stock total</div>
+          <div class="value" id="kpiStock">—</div>
+          <div class="hint">suma de cantidades</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Sin stock</div>
+          <div class="value" id="kpiZero">—</div>
+          <div class="hint">productos con 0</div>
+        </div>
+      </div>
     </div>
 
-    <hr style="border:0;border-top:1px solid rgba(255,255,255,.12); margin:16px 0;">
+    <!-- CREATE PRODUCT -->
+    <div class="card">
+      <h3 style="margin:0 0 12px;">Crear producto</h3>
 
-    <h3 style="margin:0 0 8px;">Usuario</h3>
-    <pre id="userBox">—</pre>
+      <form id="createForm" class="grid">
+        <input id="pName" placeholder="Nombre (ej: Mouse Logitech)" required minlength="2" maxlength="120" />
+        <input id="pSku" placeholder="SKU (ej: LOGI-001)" required minlength="2" maxlength="40" />
+        <input id="pQty" placeholder="Cantidad" type="number" min="0" value="0" required />
+        <input id="pLoc" placeholder="Ubicación (opcional)" maxlength="80" />
+        <button class="btn" id="createBtn" type="submit" style="grid-column: 1 / -1;">Crear</button>
+      </form>
 
-    <h3 style="margin:16px 0 8px;">Estado del token (GET /auth/me)</h3>
-    <div id="tokenStatus" class="muted">Probando token…</div>
-    <pre id="meBox">—</pre>
+      <div id="createMsg" class="msg"></div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="card">
+      <div class="row">
+        <h3 style="margin:0;">Productos</h3>
+        <div class="muted" id="count">—</div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <input id="q" placeholder="Buscar por nombre o SKU…" />
+        <select id="locFilter">
+          <option value="">Todas las ubicaciones</option>
+        </select>
+        <select id="sortBy">
+          <option value="created_desc">Orden: más nuevos</option>
+          <option value="name_asc">Nombre: A → Z</option>
+          <option value="qty_desc">Cantidad: mayor → menor</option>
+          <option value="qty_asc">Cantidad: menor → mayor</option>
+        </select>
+      </div>
+
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>SKU</th>
+              <th style="text-align:right;">Cantidad</th>
+              <th>Ubicación</th>
+              <th style="width:120px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="5" class="muted">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    // 1) Leer sesión
+    // ===== Config =====
+    const API_BASE = "http://localhost:3000";
+
+    // ===== Sesión =====
     const sessionRaw = localStorage.getItem("session");
     const session = sessionRaw ? JSON.parse(sessionRaw) : null;
 
-    // 2) Si no hay sesión -> volver al login
     if (!session || !session.token) {
       window.location.href = "./login.html";
     }
 
-    // 3) Mostrar usuario
     const subtitle = document.getElementById("subtitle");
-    const userBox = document.getElementById("userBox");
     subtitle.textContent = `Hola, ${session.user?.name || "usuario"} (${session.user?.role || "sin rol"})`;
-    userBox.textContent = JSON.stringify(session.user, null, 2);
 
-    // 4) Logout
+    // ===== UI refs =====
+    const topMsg = document.getElementById("topMsg");
+    const createMsg = document.getElementById("createMsg");
+    const tbody = document.getElementById("tbody");
+    const countEl = document.getElementById("count");
+
+    const kpiTotal = document.getElementById("kpiTotal");
+    const kpiStock = document.getElementById("kpiStock");
+    const kpiZero  = document.getElementById("kpiZero");
+
+    const qInput = document.getElementById("q");
+    const locFilter = document.getElementById("locFilter");
+    const sortBy = document.getElementById("sortBy");
+
+    let allProducts = [];
+
+    // ===== UI helpers =====
+    function showMsg(el, type, text) {
+      el.className = "msg " + (type === "ok" ? "ok" : "bad");
+      el.textContent = text;
+    }
+    function clearMsg(el){
+      el.className = "msg";
+      el.textContent = "";
+    }
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function authHeaders() {
+      return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.token}`
+      };
+    }
+
+    async function apiFetch(path, options = {}) {
+      const res = await fetch(API_BASE + path, options);
+
+      if (res.status === 401) {
+        localStorage.removeItem("session");
+        window.location.href = "./login.html";
+        return null;
+      }
+
+      if (res.status === 204) return { ok: true, status: 204, data: null };
+
+      let data = null;
+      try { data = await res.json(); } catch { data = null; }
+
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    // ===== Logout =====
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("session");
       window.location.href = "./login.html";
     });
 
-    // 5) Probar token en API
-    async function testToken() {
-      const tokenStatus = document.getElementById("tokenStatus");
-      const meBox = document.getElementById("meBox");
-
-      try {
-        const res = await fetch("http://localhost:3000/auth/me", {
-          headers: {
-            "Authorization": `Bearer ${session.token}`
-          }
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          tokenStatus.textContent = "Token inválido o expirado. Redirigiendo al login…";
-          tokenStatus.className = "bad";
-          localStorage.removeItem("session");
-          setTimeout(() => window.location.href = "./login.html", 800);
-          return;
-        }
-
-        tokenStatus.textContent = "Token OK ✅";
-        tokenStatus.className = "ok";
-        meBox.textContent = JSON.stringify(data, null, 2);
-
-      } catch (err) {
-        tokenStatus.textContent = "No se pudo conectar con la API (¿está corriendo FastAPI?).";
-        tokenStatus.className = "bad";
-        meBox.textContent = String(err);
-      }
+    // ===== KPI + filtros + tabla =====
+    function badgeForQty(qty){
+      if (qty === 0) return { cls: "bad",  text: "Sin stock" };
+      if (qty <= 10) return { cls: "warn", text: "Bajo" };
+      return { cls: "ok", text: "OK" };
     }
 
-    testToken();
+    function updateKpis(items){
+      const total = items.length;
+      const stock = items.reduce((acc, p) => acc + (Number(p.quantity) || 0), 0);
+      const zero  = items.filter(p => Number(p.quantity) === 0).length;
+
+      kpiTotal.textContent = total;
+      kpiStock.textContent = stock;
+      kpiZero.textContent  = zero;
+    }
+
+    function uniqueLocations(items){
+      const set = new Set();
+      items.forEach(p => { if (p.location) set.add(p.location); });
+      return Array.from(set).sort((a,b) => a.localeCompare(b));
+    }
+
+    function renderLocations(items){
+      const selected = locFilter.value;
+      const locs = uniqueLocations(items);
+
+      locFilter.innerHTML = `<option value="">Todas las ubicaciones</option>` +
+        locs.map(l => `<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join("");
+
+      locFilter.value = locs.includes(selected) ? selected : "";
+    }
+
+    function applyQueryFiltersSort(items){
+      const q = qInput.value.trim().toLowerCase();
+      const loc = locFilter.value;
+
+      let out = items;
+
+      if (q){
+        out = out.filter(p => {
+          const name = String(p.name || "").toLowerCase();
+          const sku  = String(p.sku || "").toLowerCase();
+          return name.includes(q) || sku.includes(q);
+        });
+      }
+
+      if (loc){
+        out = out.filter(p => (p.location || "") === loc);
+      }
+
+      const sort = sortBy.value;
+      out = [...out].sort((a,b) => {
+        if (sort === "name_asc") return String(a.name).localeCompare(String(b.name));
+        if (sort === "qty_desc") return (Number(b.quantity)||0) - (Number(a.quantity)||0);
+        if (sort === "qty_asc")  return (Number(a.quantity)||0) - (Number(b.quantity)||0);
+        return (Number(b.created_at)||0) - (Number(a.created_at)||0);
+      });
+
+      return out;
+    }
+
+    function renderTable(items){
+      countEl.textContent = `${items.length} producto(s)`;
+
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="muted">No hay coincidencias.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = items.map(p => {
+        const qty = Number(p.quantity) || 0;
+        const b = badgeForQty(qty);
+
+        return `
+          <tr>
+            <td>${escapeHtml(p.name)}</td>
+            <td>${escapeHtml(p.sku)}</td>
+            <td class="qty">
+              <span class="badge ${b.cls}">
+                <span class="dot"></span>
+                ${qty} · ${b.text}
+              </span>
+            </td>
+            <td>${p.location ? escapeHtml(p.location) : "<span class='muted'>—</span>"}</td>
+            <td class="actions">
+              <button class="btn danger" data-del="${p.id}">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      document.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-del");
+          if (!confirm("¿Eliminar este producto?")) return;
+          btn.disabled = true;
+          await deleteProduct(id);
+          btn.disabled = false;
+        });
+      });
+    }
+
+    function renderFromCache(){
+      updateKpis(allProducts);
+      renderLocations(allProducts);
+      const view = applyQueryFiltersSort(allProducts);
+      renderTable(view);
+    }
+
+    async function loadProducts() {
+      clearMsg(topMsg);
+      tbody.innerHTML = `<tr><td colspan="5" class="muted">Cargando…</td></tr>`;
+
+      const r = await apiFetch("/products", { headers: authHeaders() });
+      if (!r) return;
+
+      if (!r.ok) {
+        showMsg(topMsg, "bad", r.data?.detail || `Error cargando productos (${r.status})`);
+        tbody.innerHTML = `<tr><td colspan="5" class="muted">—</td></tr>`;
+        return;
+      }
+
+      allProducts = r.data || [];
+      renderFromCache();
+    }
+
+    // ===== Crear producto =====
+    const createForm = document.getElementById("createForm");
+    const createBtn = document.getElementById("createBtn");
+
+    createForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearMsg(createMsg);
+
+      const payload = {
+        name: document.getElementById("pName").value.trim(),
+        sku: document.getElementById("pSku").value.trim(),
+        quantity: Number(document.getElementById("pQty").value),
+        location: document.getElementById("pLoc").value.trim() || null
+      };
+
+      createBtn.disabled = true;
+      createBtn.textContent = "Creando…";
+
+      const r = await apiFetch("/products", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+
+      createBtn.disabled = false;
+      createBtn.textContent = "Crear";
+
+      if (!r) return;
+
+      if (!r.ok) {
+        showMsg(createMsg, "bad", r.data?.detail || `No se pudo crear (${r.status})`);
+        return;
+      }
+
+      showMsg(createMsg, "ok", "Producto creado ✅");
+      createForm.reset();
+      document.getElementById("pQty").value = 0;
+
+      await loadProducts();
+    });
+
+    // ===== Eliminar producto =====
+    async function deleteProduct(id) {
+      clearMsg(topMsg);
+      const r = await apiFetch(`/products/${id}`, {
+        method: "DELETE",
+        headers: authHeaders()
+      });
+      if (!r) return;
+
+      if (!r.ok) {
+        showMsg(topMsg, "bad", r.data?.detail || `No se pudo eliminar (${r.status})`);
+        return;
+      }
+
+      showMsg(topMsg, "ok", "Producto eliminado ✅");
+      await loadProducts();
+    }
+
+    // ===== Refresh & filtros =====
+    document.getElementById("refreshBtn").addEventListener("click", loadProducts);
+    qInput.addEventListener("input", renderFromCache);
+    locFilter.addEventListener("change", renderFromCache);
+    sortBy.addEventListener("change", renderFromCache);
+
+    // ===== Init =====
+    loadProducts();
   </script>
 </body>
 </html>

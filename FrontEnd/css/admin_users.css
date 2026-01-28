@@ -1,0 +1,75 @@
+:root{
+  --bg:#0b1220;
+  --card:#111a2e;
+  --border:rgba(255,255,255,.12);
+  --muted:#a9b6d6;
+  --text:#e8eefc;
+  --accent:rgba(95,120,255,.6);
+  --accentBg:rgba(95,120,255,.15);
+}
+
+*{ box-sizing: border-box; }
+body { margin:0; padding:24px; font-family: system-ui, Arial; background:var(--bg); color:var(--text); }
+.wrap { max-width: 920px; margin: 0 auto; }
+
+.top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap: wrap; }
+h1{ margin:0 0 6px; }
+.muted{ color: var(--muted); }
+
+.card { margin-top: 14px; background:var(--card); border:1px solid var(--border); border-radius: 14px; padding: 18px; }
+
+.actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 12px; border-radius: 10px;
+  border:1px solid var(--accent);
+  background: var(--accentBg);
+  color:var(--text); text-decoration:none;
+  cursor:pointer;
+}
+.btn.primary{
+  border-color: rgba(80,250,123,.4);
+  background: rgba(80,250,123,.12);
+}
+.btn.danger{
+  border-color: rgba(255,92,122,.6);
+  background: rgba(255,92,122,.12);
+}
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+@media (max-width: 760px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+label{ display:block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+input, select{
+  width:100%;
+  padding:10px 12px;
+  border-radius: 10px;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.2);
+  color:var(--text);
+}
+.passRow{ display:flex; gap:8px; align-items:center; }
+.iconBtn{
+  width:44px; height:44px;
+  border-radius: 10px;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.2);
+  color: var(--text);
+  cursor:pointer;
+}
+
+.err{ display:block; color: rgba(255,92,122,.95); min-height: 18px; margin-top: 4px; }
+.hint{ display:block; color: rgba(169,182,214,.85); margin-top: 6px; font-size: 12px; }
+
+.msg{ display:none; margin-top: 12px; padding: 10px 12px; border-radius: 10px; border:1px solid rgba(255,255,255,.14); }
+.msg.ok{ display:block; border-color: rgba(80,250,123,.4); background: rgba(80,250,123,.10); }
+.msg.bad{ display:block; border-color: rgba(255,92,122,.4); background: rgba(255,92,122,.10); }

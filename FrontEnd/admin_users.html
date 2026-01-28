@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin | Crear usuarios</title>
+  <link rel="stylesheet" href="./css/admin_users.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Admin · Crear usuarios</h1>
+        <p class="muted" id="subtitle">—</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn" href="./dashboard.html">Volver al dashboard</a>
+        <button class="btn danger" id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Nuevo usuario</h3>
+
+      <form id="createUserForm" class="grid">
+        <div>
+          <label>Nombre</label>
+          <input id="name" placeholder="Ej: María Pérez" minlength="2" maxlength="60" required />
+          <small class="err" id="nameErr"></small>
+        </div>
+
+        <div>
+          <label>Email</label>
+          <input id="email" placeholder="maria@empresa.com" required />
+          <small class="err" id="emailErr"></small>
+        </div>
+
+        <div>
+          <label>Contraseña</label>
+          <div class="passRow">
+            <input id="password" type="password" placeholder="mín 6 caracteres" minlength="6" maxlength="128" required />
+            <button type="button" class="iconBtn" id="togglePass">👁</button>
+          </div>
+          <small class="err" id="passErr"></small>
+        </div>
+
+        <div>
+          <label>Rol</label>
+          <select id="role">
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+          <small class="hint">⚠️ Solo entrega admin a quien corresponda.</small>
+        </div>
+
+        <button class="btn primary" id="createBtn" type="submit">Crear usuario</button>
+      </form>
+
+      <div id="msg" class="msg"></div>
+    </div>
+
+
+  <script src="./js/admin_users.js"></script>
+</body>
+</html>

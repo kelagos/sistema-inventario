@@ -101,3 +101,28 @@ form.addEventListener("submit", async (e) => {
     setLoading(false);
   }
 });
+const createAccountLink = document.getElementById("createAccountLink");
+
+if (createAccountLink) {
+  createAccountLink.addEventListener("click", (e) => {
+    const sessionRaw = localStorage.getItem("session");
+    const session = sessionRaw ? JSON.parse(sessionRaw) : null;
+
+    // No hay sesión -> no puede crear usuarios (solo admin)
+    if (!session || !session.token) {
+      e.preventDefault();
+      alert("Debes iniciar sesión como ADMIN para crear usuarios.");
+      return;
+    }
+
+    // Hay sesión pero no es admin
+    if (session.user?.role !== "admin") {
+      e.preventDefault();
+      alert("No autorizado. Solo ADMIN puede crear usuarios.");
+      window.location.href = "./dashboard.html";
+      return;
+    }
+
+    // Si es admin, lo dejamos navegar a admin_users.html
+  });
+}

@@ -6,6 +6,20 @@
       "email": "kevin@test.com",
       "password_hash": "$pbkdf2-sha256$29000$UOpdy3kvZax1zllLKeX8Xw$Zr4zYhCmK/h4qyxoeuZIWFOzIlsvxLLwfXdmuCvv00Q",
       "role": "admin"
+    },
+    {
+      "id": 1769612297156,
+      "name": "apolo",
+      "email": "apolo@test.cl",
+      "password_hash": "$pbkdf2-sha256$29000$MuZ87927V6r1nlPq/d8b4w$XNnqODqp5KeyaMARe81FReKMZazZEoTAwM4uSM/b91Y",
+      "role": "user"
+    },
+    {
+      "id": 1769612492077,
+      "name": "sergio",
+      "email": "sergio@test.cl",
+      "password_hash": "$pbkdf2-sha256$29000$A6BUam1tDQFAKAVg7P3fmw$UfcywRxCScM861w3yIfXk8Gyi8HcVtTZAIXgbcSR6aM",
+      "role": "admin"
     }
   ]
 }
